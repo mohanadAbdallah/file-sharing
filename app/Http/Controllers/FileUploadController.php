@@ -3,23 +3,46 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\FileUploadRequest;
+use App\Mail\ShareLink;
+use App\Models\FileSharing;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class FileUploadController extends Controller
 {
-    public function upload(FileUploadRequest $request)
+    public function upload(FileUploadRequest $request): RedirectResponse
     {
-        $request->validated();
-        $link = null;
+        $validatedData = $request->validated();
 
-        if ($request->hasFile('file')){
-            $path = $request->file('file')->store('images','public');
-            $link = asset('storage/'.$path);
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store();
+            $validatedData['file'] = $path;
         }
 
-        return redirect()->back()->with(['success' => 'Successfully Uploaded','link'=>$link]);
+        FileSharing::create($validatedData);
+
+        return redirect()->back()->with(['link' => $path]);
+    }
+
+    public function sendEmail(FileUploadRequest $request): RedirectResponse
+    {
+        $validatedData = $request->validated();
+
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store();
+            $validatedData['file'] = $path;
+        }
+
+        FileSharing::create($validatedData);
+
+        Mail::to($request->email)
+            ->send(new ShareLink($request->message, $validatedData, $path));
+
+        return redirect()->back()
+            ->with('success', 'Link Sent to the Email you entered');
     }
 
     public function downloadPage(): View
@@ -34,11 +57,11 @@ class FileUploadController extends Controller
         ]);
         $path = $request->input('path');
 
-        if ($path){
-            $file = Storage::disk('public')->has($path);
-            dd($file);
-            return response()->download($file);
+        if (Storage::exists($path))
+        {
+            return Storage::download($path);
         }
-        return redirect()->back()->with('success','File Downloaded Successfully, Download More ?');
+        return back()->with('error', 'File Doesnt Exist.');
+
     }
 }

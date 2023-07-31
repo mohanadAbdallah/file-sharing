@@ -22,6 +22,7 @@ class FileUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'title'=>['string'],
             'file'=>['required']
         ];
     }

@@ -21,6 +21,9 @@ Route::get('/', function () {
 Route::post('file-upload',[FileUploadController::class,'upload'])
     ->name('file.upload');
 
+Route::post('file-send-email',[FileUploadController::class,'sendEmail'])
+    ->name('file.upload.sendEmail');
+
 Route::get('file-download',[FileUploadController::class,'downloadPage'])
     ->name('file.download.form');
 
