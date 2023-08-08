@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Psy\Util\Str;
 
 class FileUploadController extends Controller
 {
@@ -18,13 +19,13 @@ class FileUploadController extends Controller
         $validatedData = $request->validated();
 
         if ($request->hasFile('file')) {
-            $path = $request->file('file')->store();
+            $path = $request->file('file')->store('images','public');
             $validatedData['file'] = $path;
         }
-
+        $url = asset('storage/'.$path); // Generate the public URL
         FileSharing::create($validatedData);
 
-        return redirect()->back()->with(['link' => $path]);
+        return redirect()->back()->with(['link' => $url]);
     }
 
     public function sendEmail(FileUploadRequest $request): RedirectResponse
