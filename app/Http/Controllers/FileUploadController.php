@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\FileDownloaded;
+use App\Events\NewFileDownloaded;
 use App\Http\Requests\FileUploadRequest;
 use App\Models\FileSharing;
 use Illuminate\Http\RedirectResponse;
@@ -31,9 +33,9 @@ class FileUploadController extends Controller
         $validatedData = $request->validated();
 
         if ($request->hasFile('file')) {
-            $filename = Str::random(8) . '.' .  $request->file('file')->getClientOriginalName();
+            $filename = Str::random(8) . '.' . $request->file('file')->getClientOriginalName();
 
-            $request->file('file')->storeAs('uploads',$filename, 'local');
+            $request->file('file')->storeAs('uploads', $filename, 'local');
             $validatedData['file'] = $filename;
         }
 
@@ -44,10 +46,13 @@ class FileUploadController extends Controller
 
     public function download($file): BinaryFileResponse|RedirectResponse
     {
-
         $filePath = storage_path('app/uploads/' . $file);
 
         if (FileSharing::exists($filePath)) {
+            $fileDownloaded = FileSharing::where('file', $file)->first();
+
+            event(new FileDownloaded($fileDownloaded));
+
             return Response::download($filePath);
         } else {
             return redirect()->back()->with('danger', 'File not found');
@@ -63,6 +68,7 @@ class FileUploadController extends Controller
 
         return view('files.share', compact('url', 'file'));
     }
+
     public function destroy($id): RedirectResponse
     {
         $file = FileSharing::findOrFail($id);

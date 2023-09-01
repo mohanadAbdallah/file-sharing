@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/',[FileUploadController::class,'viewFiles']);
 
+
+
 Route::get('view-files',[FileUploadController::class,'viewFiles'])->name('files.view');
 Route::post('file-upload',[FileUploadController::class,'upload'])->name('files.upload');
 Route::get('file-upload-page',[FileUploadController::class,'uploadPage'])->name('files.uploadPage');
@@ -30,6 +32,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+
 });
 
 require __DIR__.'/auth.php';
