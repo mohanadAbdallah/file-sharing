@@ -8,6 +8,7 @@ use App\Http\Requests\FileUploadRequest;
 use App\Models\FileSharing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -34,7 +35,6 @@ class FileUploadController extends Controller
 
         if ($request->hasFile('file')) {
             $filename = Str::random(8) . '.' . $request->file('file')->getClientOriginalName();
-
             $request->file('file')->storeAs('uploads', $filename, 'local');
             $validatedData['file'] = $filename;
         }
@@ -47,7 +47,6 @@ class FileUploadController extends Controller
     public function download($file): BinaryFileResponse|RedirectResponse
     {
         $filePath = storage_path('app/uploads/' . $file);
-
         if (FileSharing::exists($filePath)) {
             $fileDownloaded = FileSharing::where('file', $file)->first();
 
@@ -63,6 +62,7 @@ class FileUploadController extends Controller
     public function share($id): View
     {
         $file = FileSharing::findOrFail($id);
+
         $url = URL::temporarySignedRoute('files.download', now()->addHours(2),
             ['file' => $file->file, 'name' => $file->name]);
 

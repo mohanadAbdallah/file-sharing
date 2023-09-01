@@ -51,7 +51,7 @@
                                 {{ $file->name }}
                             </td>
                             <td class="align-middle">{{ $file->title }}</td>
-                            <td class="align-middle">{{ $file->created_at }}</td>
+                            <td class="align-middle">{{ $file->created_at->format('d-M-y H:i')}}</td>
                             <td class="align-middle ">
                                 <a class="btn btn-sm text-success " href="{{ route('files.download', $file->file) }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"

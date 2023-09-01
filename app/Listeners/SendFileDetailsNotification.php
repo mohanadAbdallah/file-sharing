@@ -8,6 +8,7 @@ use App\Models\DownloadActivity;
 use GuzzleHttp\Client;
 
 
+
 class SendFileDetailsNotification
 {
     /**
