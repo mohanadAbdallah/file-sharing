@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Events\FileDownloaded;
-use App\Events\NewFileDownloaded;
 use App\Http\Requests\FileUploadRequest;
 use App\Models\FileSharing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -44,14 +42,17 @@ class FileUploadController extends Controller
 
     }
 
-    public function download($file): BinaryFileResponse|RedirectResponse
+    public function download(Request $request,$file): BinaryFileResponse|RedirectResponse
     {
+        if (! $request->hasValidSignature()) {
+            abort(401);
+        }
+
         $filePath = storage_path('app/uploads/' . $file);
         if (FileSharing::exists($filePath)) {
             $fileDownloaded = FileSharing::where('file', $file)->first();
 
             event(new FileDownloaded($fileDownloaded));
-
             return Response::download($filePath);
         } else {
             return redirect()->back()->with('danger', 'File not found');
