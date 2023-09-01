@@ -17,13 +17,16 @@
 
 </head>
 <body>
+
+@include('layouts.partials.navbar')
+
 <div class="container">
 
     <div class="row">
         <div class="col-md-8" style="margin: 237px -30px auto 208px;">
 
             <form
-                action="" method="post">
+                action="{{route('files.download')}}" method="post">
                 @csrf
 
                 @if (session('status'))

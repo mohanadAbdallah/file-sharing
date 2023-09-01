@@ -14,16 +14,18 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-
 </head>
 <body>
+
+@include('layouts.partials.navbar')
+
 <div class="container">
 
     <div class="row">
-        <div class="col-md-8" style="margin: 237px -30px auto 208px;">
+        <div class="col-md-8" style="margin: 150px -30px auto 208px;">
 
             <form
-                action="" method="post">
+                action="{{route('files.upload')}}" method="post" enctype="multipart/form-data">
                 @csrf
 
                 @if (session('status'))
@@ -40,21 +42,19 @@
                     @endforeach
                 @endif
 
-                @if($errors->any())
-                    @foreach($errors->all() as $error)
-                        <div class="alert alert-danger">
-                            {{$error}}
-                        </div>
-                    @endforeach
-                @endif
-                <h3>Enter the link to Download File</h3>
+                <h3 class="mb-5">Enter the File you need to share. </h3>
+                <label class="mb-1">Enter File Title : </label>
+                <div class="input-group mb-3">
 
-                <label for="formFileLg" class="form-label">Download File.</label>
-                <input class="form-control form-control-lg" id="formFileLg" type="text" name="path">
+                    <input class="form-control" name="title" type="text" id="formFile">
+                </div>
 
-                <div class="mt-4">
-                    <button class="btn btn-primary" type="submit">Download</button>
-                    <a href="{{route('files.uploadPage')}}" class="btn btn-danger">To Upload Page</a>
+                <div class="input-group mb-3">
+                    <input class="form-control" name="file" type="file" id="formFile">
+                </div>
+                <div class="mt-5">
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <a href="javascript:void(0)" onclick="history.back()" class="btn btn-danger">Back</a>
                 </div>
 
             </form>
