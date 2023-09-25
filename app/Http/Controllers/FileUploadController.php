@@ -42,11 +42,23 @@ class FileUploadController extends Controller
 
     }
 
-    public function download(Request $request,$file): BinaryFileResponse|RedirectResponse
+    public function download($file): BinaryFileResponse|RedirectResponse
     {
-        if (! $request->hasValidSignature()) {
-            abort(401);
+
+        $filePath = storage_path('app/uploads/' . $file);
+        if (FileSharing::exists($filePath)) {
+            $fileDownloaded = FileSharing::where('file', $file)->first();
+
+            event(new FileDownloaded($fileDownloaded));
+            return Response::download($filePath);
+        } else {
+            return redirect()->back()->with('danger', 'File not found');
         }
+
+    }
+
+    public function signedDownload($file): BinaryFileResponse|RedirectResponse
+    {
 
         $filePath = storage_path('app/uploads/' . $file);
         if (FileSharing::exists($filePath)) {
@@ -64,8 +76,8 @@ class FileUploadController extends Controller
     {
         $file = FileSharing::findOrFail($id);
 
-        $url = URL::temporarySignedRoute('files.download', now()->addHours(2),
-            ['file' => $file->file, 'name' => $file->name]);
+        $url = URL::temporarySignedRoute(
+            'files.signedDownload', now()->addHour(), ['file' => $file->file, 'name' => $file->name]);
 
         return view('files.share', compact('url', 'file'));
     }

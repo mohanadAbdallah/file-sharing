@@ -58,7 +58,6 @@
         const boxContent = document.querySelector('.box-content');
         const text = boxContent.textContent;
 
-        // Create a temporary textarea to copy the text to clipboard
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);

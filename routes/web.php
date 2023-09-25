@@ -22,7 +22,12 @@ Route::get('/',[FileUploadController::class,'viewFiles']);
 Route::get('view-files',[FileUploadController::class,'viewFiles'])->name('files.view');
 Route::post('file-upload',[FileUploadController::class,'upload'])->name('files.upload');
 Route::get('file-upload-page',[FileUploadController::class,'uploadPage'])->name('files.uploadPage');
+
 Route::get('file-download/{file}',[FileUploadController::class,'download'])->name('files.download');
+
+Route::get('signed-file-download/{file}',[FileUploadController::class,'signedDownload'])->name('files.signedDownload')
+    ->middleware('signed');
+
 Route::get('file-share-page/{id}',[FileUploadController::class,'share'])->name('files.share');
 Route::delete('file-delete/{id}',[FileUploadController::class,'destroy'])->name('files.destroy');
 Route::delete('file-deleteSelected',[FileUploadController::class,'deleteSelected'])->name('files.deleteSelected');

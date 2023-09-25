@@ -6,7 +6,7 @@ use App\Events\FileDownloaded;
 use App\Models\DownloadActivity;
 
 use GuzzleHttp\Client;
-
+use Illuminate\Support\Facades\DB;
 
 
 class SendFileDetailsNotification
@@ -24,7 +24,7 @@ class SendFileDetailsNotification
      */
     public function handle(FileDownloaded $event): void
     {
-        $apiKey = 'b3d2d4ca7da94f4b8459996203919dda';
+        $apiKey = env('IPIFY_KEY');
         $client = new Client();
         $response = $client->get('https://api.ipify.org?format=json');
         $data = json_decode($response->getBody(), true);
@@ -37,14 +37,15 @@ class SendFileDetailsNotification
         } catch (\Exception $e) {
             dd($e);
         }
-
-        DownloadActivity::create([
-            'ip_address' => request()->ip(),
-            'file_id' => $event->file->id,
-            'user_agent' => request()->userAgent(),
-            'address' => $data['country_name'] .'-' . $data['city'] . '-'. $data['latitude'] .'-'. $data['longitude'],
-            'country' => $data['country_name']
-        ]);
-        $event->file->increment('download_count');
+        DB::transaction(function () use ($event, $data) {
+            DownloadActivity::create([
+                'ip_address' => request()->ip(),
+                'file_id' => $event->file->id,
+                'user_agent' => request()->userAgent(),
+                'address' => $data['country_name'] . '-' . $data['city'] . '-' . $data['latitude'] . '-' . $data['longitude'],
+                'country' => $data['country_name']
+            ]);
+            $event->file->increment('download_count');
+        });
     }
 }
